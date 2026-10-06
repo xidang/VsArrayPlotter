@@ -13,14 +13,14 @@ jobs:
         uses: actions/checkout@v4
 
       # VSIX 的 VSSDK BuildTools 使用 CodeTaskFactory，仅完整版 MSBuild（随 VS 安装）支持，
-      # dotnet build 的 .NET Core MSBuild 不支持（MSB4801），故改用运行机预装的 VS MSBuild。
-      - name: Restore & Build (VS MSBuild)
+      # dotnet build 的 .NET Core MSBuild 不支持（MSB4801）。运行机映像为 windows-2025-vs2026，
+      # 用 setup-msbuild 自动定位 MSBuild 并加入 PATH。
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore & Build
         shell: pwsh
-        run: |
-          $msbuild = Get-ChildItem 'C:\Program Files\Microsoft Visual Studio\2022\*\MSBuild\Current\Bin\MSBuild.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $msbuild) { throw 'MSBuild.exe not found' }
-          Write-Host "Using: $($msbuild.FullName)"
-          & $msbuild.FullName 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
+        run: msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v4
