@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidVsArrayPlotterPkg">
+    <Groups>
+      <Group guid="guidVsArrayPlotterCmdSet" id="PlotterMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLSADDINS" />
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidVsArrayPlotterCmdSet" id="cmdidPlotterWindow" priority="0x0100" type="Button">
+        <Parent guid="guidVsArrayPlotterCmdSet" id="PlotterMenuGroup" />
+        <Strings>
+          <ButtonText>数组绘图器</ButtonText>
+          <CommandName>数组绘图器</CommandName>
+          <ToolTipText>打开数组绘图器：读取进程内存数组并绘制 1D/2D/3D 图（线性 / dB）</ToolTipText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidVsArrayPlotterPkg" value="{3d8f6a2c-9e5b-4f1a-8c7d-2b6e4a1f9c3d}" />
+    <GuidSymbol name="guidVsArrayPlotterCmdSet" value="{b2c4d6e8-1a3f-4e5b-9d7c-6f8a2b4e1c3d}">
+      <IDSymbol name="PlotterMenuGroup" value="0x1020" />
+      <IDSymbol name="cmdidPlotterWindow" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

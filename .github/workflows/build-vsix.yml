@@ -1,0 +1,27 @@
+name: Build VSIX
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore & Build
+        run: dotnet build src/VsArrayPlotter/VsArrayPlotter.csproj -c Release -p:DeployExtension=false
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: VsArrayPlotter-vsix
+          path: src/VsArrayPlotter/bin/Release/VsArrayPlotter.vsix
