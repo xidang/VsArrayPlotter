@@ -20,7 +20,15 @@ jobs:
 
       - name: Restore & Build
         shell: pwsh
-        run: msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
+        run: |
+          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
+          Write-Host '--- VSSDK pkg props/targets (diagnostic) ---'
+          $pkg = 'C:\Users\runneradmin\.nuget\packages\microsoft.vssdk.buildtools\17.0.5232\build'
+          Get-ChildItem $pkg | ForEach-Object { Write-Host $_.Name }
+          Get-Content "$pkg\Microsoft.VSSDK.BuildTools.props" | Select-String 'IsVsixProject|VsixManifest|OutputType'
+          Get-Content "$pkg\Microsoft.VSSDK.BuildTools.targets" | Select-String 'CreateVsixContainer|BuildDependsOn|IsVsixProject'
+          Write-Host '--- bin\Release contents ---'
+          Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace((Get-Location).Path + '\','') }
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v4

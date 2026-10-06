@@ -4,6 +4,9 @@
     <TargetFramework>net48</TargetFramework>
     <RootNamespace>VsArrayPlotter</RootNamespace>
     <AssemblyName>VsArrayPlotter</AssemblyName>
+    <!-- 显式声明 VSIX 工程并指定清单文件，确保 VSSDK BuildTools 打包目标被触发 -->
+    <IsVsixProject>true</IsVsixProject>
+    <VsixManifest>source.extension.vsixmanifest</VsixManifest>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
