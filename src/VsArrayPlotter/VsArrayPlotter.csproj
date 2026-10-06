@@ -30,7 +30,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
-    <PackageReference Include="EnvDTE" Version="8.0.0" />
+    <!-- EnvDTE 由 Microsoft.VisualStudio.SDK 传递提供，勿单独引用低版本（否则 NU1605 报错） -->
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="VsArrayPlotterPackage.vsct">
