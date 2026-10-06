@@ -38,6 +38,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Design" />
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="VsArrayPlotterPackage.vsct">

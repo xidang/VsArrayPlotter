@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using VsArrayPlotter.Models;
 
@@ -31,10 +32,14 @@ namespace VsArrayPlotter.Plotting
         {
             var model = new PlotModel
             {
-                Title = "一维图" + (db ? "（dB）" : string.Empty),
-                LegendPosition = LegendPosition.TopRight,
-                LegendPlacement = LegendPlacement.Outside
+                Title = "一维图" + (db ? "（dB）" : string.Empty)
             };
+            // OxyPlot 2.x：图例设置挂在 Legends 集合上（PlotModel.LegendPosition 已移除）
+            model.Legends.Add(new Legend
+            {
+                Position = LegendPosition.TopRight,
+                Placement = LegendPlacement.Outside
+            });
             model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "索引", MinimumPadding = 0, MaximumPadding = 0 });
             model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = db ? "幅值 (dB)" : "数值" });
 
