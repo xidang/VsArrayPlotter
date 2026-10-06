@@ -23,7 +23,7 @@ jobs:
       - name: Restore & Build
         shell: pwsh
         run: |
-          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /t:Build;GeneratePkgDef;CopyPkgDef;CreateVsixContainer /p:Configuration=Release /p:DeployExtension=false
+          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore '/t:Build;GeneratePkgDef;CopyPkgDef;CreateVsixContainer' /p:Configuration=Release /p:DeployExtension=false
           if ($LASTEXITCODE -ne 0) { Write-Host '^^ build FAILED'; exit 1 }
           $vsix = Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -Filter '*.vsix' -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $vsix) {
