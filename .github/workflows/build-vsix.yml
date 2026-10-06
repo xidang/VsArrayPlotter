@@ -21,20 +21,21 @@ jobs:
       - name: Restore & Build
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Continue'
+          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
+          Write-Host "main build exit=$LASTEXITCODE"
           $pkg = 'C:\Users\runneradmin\.nuget\packages\microsoft.vssdk.buildtools\17.0.5232'
           Write-Host '--- package build files ---'
-          Get-ChildItem "$pkg\build" -Recurse | ForEach-Object { Write-Host $_.FullName.Replace($pkg + '\','') }
+          Get-ChildItem "$pkg\build" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace($pkg + '\','') }
           Write-Host '--- props full ---'
-          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.props"
+          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.props" -ErrorAction SilentlyContinue
           Write-Host '--- targets full ---'
-          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.targets"
+          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.targets" -ErrorAction SilentlyContinue
           Write-Host '--- tools\VSSDK dirs ---'
           Get-ChildItem "$pkg\tools\VSSDK" -Directory -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
-          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
-          if ($LASTEXITCODE -ne 0) { Write-Host '^^ main build FAILED' }
           Write-Host '--- try explicit CreateVsixContainer ---'
           msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /t:CreateVsixContainer /p:Configuration=Release /p:DeployExtension=false
-          if ($LASTEXITCODE -ne 0) { Write-Host '^^ CreateVsixContainer FAILED/not found' }
+          Write-Host "CreateVsixContainer exit=$LASTEXITCODE"
           Write-Host '--- bin\Release contents ---'
           Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace((Get-Location).Path + '\','') }
 
