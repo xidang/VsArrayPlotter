@@ -21,12 +21,20 @@ jobs:
       - name: Restore & Build
         shell: pwsh
         run: |
+          $pkg = 'C:\Users\runneradmin\.nuget\packages\microsoft.vssdk.buildtools\17.0.5232'
+          Write-Host '--- package build files ---'
+          Get-ChildItem "$pkg\build" -Recurse | ForEach-Object { Write-Host $_.FullName.Replace($pkg + '\','') }
+          Write-Host '--- props full ---'
+          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.props"
+          Write-Host '--- targets full ---'
+          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.targets"
+          Write-Host '--- tools\VSSDK dirs ---'
+          Get-ChildItem "$pkg\tools\VSSDK" -Directory -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
           msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
-          Write-Host '--- VSSDK pkg props/targets (diagnostic) ---'
-          $pkg = 'C:\Users\runneradmin\.nuget\packages\microsoft.vssdk.buildtools\17.0.5232\build'
-          Get-ChildItem $pkg | ForEach-Object { Write-Host $_.Name }
-          Get-Content "$pkg\Microsoft.VSSDK.BuildTools.props" | Select-String 'IsVsixProject|VsixManifest|OutputType'
-          Get-Content "$pkg\Microsoft.VSSDK.BuildTools.targets" | Select-String 'CreateVsixContainer|BuildDependsOn|IsVsixProject'
+          if ($LASTEXITCODE -ne 0) { Write-Host '^^ main build FAILED' }
+          Write-Host '--- try explicit CreateVsixContainer ---'
+          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /t:CreateVsixContainer /p:Configuration=Release /p:DeployExtension=false
+          if ($LASTEXITCODE -ne 0) { Write-Host '^^ CreateVsixContainer FAILED/not found' }
           Write-Host '--- bin\Release contents ---'
           Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace((Get-Location).Path + '\','') }
 
