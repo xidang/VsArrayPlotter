@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+<!--
+  关键结构说明：
+  - 显式 Import Sdk.props / Sdk.targets（等价于 <Project Sdk="Microsoft.NET.Sdk"> 的自动导入），
+    以便在 Sdk.targets 之后、所有属性（TargetPath/IntermediateOutputPath/OutDir/TargetName）求值完成后，
+    再导入 VSSDK BuildTools 的真实 targets（tools\VSSDK\Microsoft.VsSDK.targets）。
+    若按默认顺序在工程体内导入，VSSDK 内的 $(TargetPath) 等默认值会在求值时仍为空，
+    导致 GeneratePkgDef 因"无输入"被跳过、打包目标无法产出 .vsix。
+-->
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <RootNamespace>VsArrayPlotter</RootNamespace>
     <AssemblyName>VsArrayPlotter</AssemblyName>
-    <!-- 显式声明 VSIX 工程并指定清单文件，确保 VSSDK BuildTools 打包目标被触发 -->
     <IsVsixProject>true</IsVsixProject>
     <VsixManifest>source.extension.vsixmanifest</VsixManifest>
   </PropertyGroup>
+
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
+
   <PropertyGroup>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+    <IncludeClientEnabledPkgFile>false</IncludeClientEnabledPkgFile>
+    <BypassVsixValidation>true</BypassVsixValidation>
     <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.31902.203" ExcludeAssets="runtime">
       <PrivateAssets>all</PrivateAssets>
@@ -35,6 +48,7 @@
     <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
     <!-- EnvDTE 由 Microsoft.VisualStudio.SDK 传递提供，勿单独引用低版本（否则 NU1605 报错） -->
   </ItemGroup>
+
   <!-- net48 SDK 风格工程不会自动引用 WPF，需显式加入（控件均为代码生成，无 XAML） -->
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -43,18 +57,26 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Design" />
   </ItemGroup>
+
   <ItemGroup>
     <VSCTCompile Include="VsArrayPlotterPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>
+
   <ItemGroup>
     <None Include="source.extension.vsixmanifest" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Remove="Resources\Icon.png" />
     <Content Include="Resources\Icon.png">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <!-- VSSDK BuildTools 的真实打包 targets；NuGet 包的 props 已把 VSToolsPath 指向包内 tools -->
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
 </Project>
