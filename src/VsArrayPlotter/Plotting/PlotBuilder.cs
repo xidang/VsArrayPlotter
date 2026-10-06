@@ -34,11 +34,12 @@ namespace VsArrayPlotter.Plotting
             {
                 Title = "一维图" + (db ? "（dB）" : string.Empty)
             };
-            // OxyPlot 2.x：图例设置挂在 Legends 集合上（PlotModel.LegendPosition 已移除）
+            // OxyPlot 2.x：图例设置挂在 Legends 集合上（PlotModel.LegendPosition 已移除；
+            // Legend 的属性名带 Legend 前缀，如 LegendPosition / LegendPlacement）
             model.Legends.Add(new Legend
             {
-                Position = LegendPosition.TopRight,
-                Placement = LegendPlacement.Outside
+                LegendPosition = LegendPosition.TopRight,
+                LegendPlacement = LegendPlacement.Outside
             });
             model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "索引", MinimumPadding = 0, MaximumPadding = 0 });
             model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = db ? "幅值 (dB)" : "数值" });
