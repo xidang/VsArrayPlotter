@@ -18,29 +18,25 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      # SDK 风格工程默认不会走 PrepareForRun（旧式工程的 VSSDK 挂接点），因此 CreateVsixContainer
+      # 不会随默认 Build 执行；这里显式补齐旧式工程的 PrepareForRunDependsOn 里的 VSSDK 目标链。
       - name: Restore & Build
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
-          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /p:Configuration=Release /p:DeployExtension=false
-          Write-Host "main build exit=$LASTEXITCODE"
-          $pkg = 'C:\Users\runneradmin\.nuget\packages\microsoft.vssdk.buildtools\17.0.5232'
-          Write-Host '--- package build files ---'
-          Get-ChildItem "$pkg\build" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace($pkg + '\','') }
-          Write-Host '--- props full ---'
-          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.props" -ErrorAction SilentlyContinue
-          Write-Host '--- targets full ---'
-          Get-Content "$pkg\build\Microsoft.VSSDK.BuildTools.targets" -ErrorAction SilentlyContinue
-          Write-Host '--- tools\VSSDK dirs ---'
-          Get-ChildItem "$pkg\tools\VSSDK" -Directory -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
-          Write-Host '--- try explicit CreateVsixContainer ---'
-          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /t:CreateVsixContainer /p:Configuration=Release /p:DeployExtension=false
-          Write-Host "CreateVsixContainer exit=$LASTEXITCODE"
-          Write-Host '--- bin\Release contents ---'
-          Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName.Replace((Get-Location).Path + '\','') }
+          msbuild 'src\VsArrayPlotter\VsArrayPlotter.csproj' /restore /t:Build;GeneratePkgDef;CopyPkgDef;CreateVsixContainer /p:Configuration=Release /p:DeployExtension=false
+          if ($LASTEXITCODE -ne 0) { Write-Host '^^ build FAILED'; exit 1 }
+          $vsix = Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -Filter '*.vsix' -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $vsix) {
+            Write-Host '^^ NO VSIX PRODUCED'
+            Get-ChildItem -Recurse 'src\VsArrayPlotter\bin\Release' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+            exit 1
+          }
+          New-Item -ItemType Directory -Force 'vsix_out' | Out-Null
+          Copy-Item $vsix.FullName "vsix_out\$($vsix.Name)" -Force
+          Write-Host "VSIX OK: $($vsix.FullName) ($($vsix.Length) bytes)"
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v4
         with:
           name: VsArrayPlotter-vsix
-          path: src/VsArrayPlotter/bin/Release/VsArrayPlotter.vsix
+          path: vsix_out/VsArrayPlotter.vsix
