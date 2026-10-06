@@ -75,6 +75,20 @@
     </Content>
   </ItemGroup>
 
+  <!-- SDK 风格工程下 VSSDK 的 ResolvePackageReferences 引用收录链未生效，显式把运行期依赖
+       (OxyPlot 系列 DLL) 加入 VSIX 包；路径与 NuGet lib 实际布局一致（见构建日志 CopyFilesMarkedCopyLocal） -->
+  <ItemGroup>
+    <VSIXSourceItem Include="$(NuGetPackageRoot)oxyplot.core\2.1.2\lib\net45\OxyPlot.dll">
+      <VSIXSubPath></VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(NuGetPackageRoot)oxyplot.wpf\2.1.2\lib\net45\OxyPlot.Wpf.dll">
+      <VSIXSubPath></VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(NuGetPackageRoot)oxyplot.wpf.shared\2.1.2\lib\net45\OxyPlot.Wpf.Shared.dll">
+      <VSIXSubPath></VSIXSubPath>
+    </VSIXSourceItem>
+  </ItemGroup>
+
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
   <!-- VSSDK BuildTools 的真实打包 targets；NuGet 包的 props 已把 VSToolsPath 指向包内 tools -->
