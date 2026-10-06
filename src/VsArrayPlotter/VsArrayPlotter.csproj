@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
@@ -31,6 +31,13 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
     <!-- EnvDTE 由 Microsoft.VisualStudio.SDK 传递提供，勿单独引用低版本（否则 NU1605 报错） -->
+  </ItemGroup>
+  <!-- net48 SDK 风格工程不会自动引用 WPF，需显式加入（控件均为代码生成，无 XAML） -->
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="VsArrayPlotterPackage.vsct">
